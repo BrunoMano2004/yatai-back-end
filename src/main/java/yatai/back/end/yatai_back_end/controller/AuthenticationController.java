@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import yatai.back.end.yatai_back_end.dto.AuthenticationRequest;
 import yatai.back.end.yatai_back_end.dto.AuthenticationResponse;
@@ -19,6 +23,7 @@ import yatai.back.end.yatai_back_end.model.User;
 import yatai.back.end.yatai_back_end.repository.UserRepository;
 import yatai.back.end.yatai_back_end.service.JwtService;
 
+@Tag(name = "Autenticação", description = "Operações de autenticação e registro de usuários")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -30,6 +35,11 @@ public class AuthenticationController {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @Operation(summary = "Registrar novo usuário", description = "Cria um novo usuário e retorna um token JWT.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Dados inválidos")
+  })
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(
       @RequestBody RegisterRequest request) {
@@ -44,6 +54,11 @@ public class AuthenticationController {
         .build());
   }
 
+  @Operation(summary = "Autenticar usuário", description = "Autentica um usuário e retorna um token JWT.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
+      @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+  })
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticationResponse> authenticate(
       @RequestBody AuthenticationRequest request) {
