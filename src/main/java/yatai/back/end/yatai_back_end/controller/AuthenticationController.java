@@ -29,47 +29,48 @@ import yatai.back.end.yatai_back_end.service.JwtService;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-  private final AuthenticationManager authenticationManager;
-  private final UserDetailsService userDetailsService;
-  private final JwtService jwtService;
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-  @Operation(summary = "Registrar novo usuário", description = "Cria um novo usuário e retorna um token JWT.")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso"),
-      @ApiResponse(responseCode = "400", description = "Dados inválidos")
-  })
-  @PostMapping("/register")
-  public ResponseEntity<AuthenticationResponse> register(
-      @RequestBody RegisterRequest request) {
-    User user = User.builder()
-        .username(request.getUsername())
-        .password(passwordEncoder.encode(request.getPassword()))
-        .build();
-    userRepository.save(user);
-    String jwtToken = jwtService.generateToken((UserDetails) user);
-    return ResponseEntity.ok(AuthenticationResponse.builder()
-        .token(jwtToken)
-        .build());
-  }
+    @Operation(summary = "Registrar novo usuário", description = "Cria um novo usuário e retorna um token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(
+            @RequestBody RegisterRequest request) {
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+        userRepository.save(user);
+        String jwtToken = jwtService.generateToken((UserDetails) user);
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build());
+    }
 
-  @Operation(summary = "Autenticar usuário", description = "Autentica um usuário e retorna um token JWT.")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
-      @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
-  })
-  @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody AuthenticationRequest request) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
-            request.getUsername(),
-            request.getPassword()));
-    UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
-    String jwtToken = jwtService.generateToken(user);
-    return ResponseEntity.ok(AuthenticationResponse.builder()
-        .token(jwtToken)
-        .build());
-  }
+    @Operation(summary = "Autenticar usuário", description = "Autentica um usuário e retorna um token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()));
+        UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
+        String jwtToken = jwtService.generateToken(user);
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build());
+    }
 }
